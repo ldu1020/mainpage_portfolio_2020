@@ -22,6 +22,14 @@ body {
   position: relative;
 }
 
+a:visited {
+  color: inherit;
+}
+
+a:link {
+  color: inherit;
+}
+
 .onLoadAniMation {
   position: fixed;
   top: 0;
@@ -32,14 +40,6 @@ body {
   animation: discover 1s forwards;
   display: none;
   z-index: 1000;
-}
-
-a:visited {
-  color: inherit;
-}
-
-a:link {
-  color: inherit;
 }
 
 @keyframes discover {
@@ -57,10 +57,22 @@ a:link {
   width: 100%;
   height: 100%;
   background-color: #4ec7f3;
-  animation: overLapping 1s;
+  animation: overLapping 1s forwards;
   transform-origin: bottom;
   display: none;
   z-index: 1000;
+}
+
+@keyframes overLapping {
+  0% {
+    transform: scaleX(0.1) scaleY(0.03);
+  }
+  50% {
+    transform: scaleX(1) scaleY(0.03);
+  }
+  100% {
+    transform: scaleY(1);
+  }
 }
 
 .content {
@@ -228,17 +240,6 @@ a:link {
 
 /* End Of Navigation */
 
-@keyframes overLapping {
-  0% {
-    transform: scaleX(0.1) scaleY(0.03);
-  }
-  50% {
-    transform: scaleX(1) scaleY(0.03);
-  }
-  100% {
-    transform: scaleY(1);
-  }
-}
 /* Header */
 
 .header {

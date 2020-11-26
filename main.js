@@ -11,13 +11,14 @@ const routes = {
   '/project': '/project.html',
 };
 
-FetchData('/');
-
 const mobileBoolean = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
   navigator.userAgent
 )
   ? true
   : false;
+
+let path;
+FetchData('/');
 
 window.addEventListener('popstate', (event) => {
   console.log('[popstate]', event.state);
@@ -29,32 +30,25 @@ hamburgerMenu.addEventListener('click', () => {
   nav.classList.toggle('visible');
 });
 
-let path;
-
-beforeOnLoadAni.addEventListener('animationend', () => {
-  console.log('event basic');
-  beforeOnLoadAni.style.display = 'none';
-  onLoadAni.style.display = 'inline';
-});
-
 onLoadAni.addEventListener('animationend', () => {
   onLoadAni.style.display = 'none';
-  beforeOnLoadAni.removeEventListener('animationend', unloadEvent);
-  console.log('remove path');
+  beforeOnLoadAni.removeEventListener('animationend', beforeUnloadEvent);
 });
 
-function unloadEvent() {
-  console.log('event fetch');
+function beforeUnloadEvent() {
   window.innerWidth < 750 && hamburgerMenu.classList.toggle('change');
   window.innerWidth < 750 && nav.classList.toggle('visible');
-  FetchData(path);
+  FetchData(path).then(() => {
+    beforeOnLoadAni.style.display = 'none';
+    onLoadAni.style.display = 'inline';
+  });
 }
 
 navList.forEach((li) => {
   li.addEventListener('click', (event) => {
     event.preventDefault();
     path = event.target.getAttribute('href');
-    beforeOnLoadAni.addEventListener('animationend', unloadEvent);
+    beforeOnLoadAni.addEventListener('animationend', beforeUnloadEvent);
     beforeOnLoadAni.style.display = 'inline';
     history.pushState({ path }, null, path);
   });
