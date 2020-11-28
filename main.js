@@ -3,12 +3,22 @@
 const hamburgerMenu = document.querySelector('.hamburger-menu');
 const nav = document.querySelector('.navigation');
 const navList = document.querySelectorAll('.navigation__lists li');
-const beforeOnLoadAni = document.querySelector('.beforeOnLoadAnimation');
+const beforeUnLoadAni = document.querySelector('.beforeOnLoadAnimation');
 const onLoadAni = document.querySelector('.onLoadAniMation');
 const content = document.querySelector('.content');
+
+// color
+const darkgray = '#4b4b4b';
+const superLightGray = '#fafafa';
+const white = '#fff';
+const blue = '#4ec7f3';
+const green = '#42c58a';
+const pink = '#ff6961';
+
 const routes = {
-  '/': './home.html',
-  '/project': '/project.html',
+  '/': './path/home.html',
+  '/project': '/path/project.html',
+  '/about-me': '/path/about-me.html',
 };
 
 const mobileBoolean = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -18,12 +28,35 @@ const mobileBoolean = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera 
   : false;
 
 let path;
-FetchData('/');
+
+window.addEventListener('load', (event) => {
+  console.log(location.pathname);
+  switch (location.pathname) {
+    case '/project':
+      fetchSet('/project');
+      return;
+    case '/about-me':
+      fetchSet('/about-me');
+      return;
+    default:
+      fetchSet('/');
+      return;
+  }
+});
 
 window.addEventListener('popstate', (event) => {
   console.log('[popstate]', event.state);
-  FetchData(event.state.path);
+  const _path = event.state ? event.state.path : '/';
+  fetchSet(_path);
 });
+
+function fetchSet(path) {
+  FetchData(path).then(() => {
+    switchInitScript(path);
+    switchThemeColor(path);
+    switchAccentColor(path);
+  });
+}
 
 hamburgerMenu.addEventListener('click', () => {
   hamburgerMenu.classList.toggle('change');
@@ -32,24 +65,29 @@ hamburgerMenu.addEventListener('click', () => {
 
 onLoadAni.addEventListener('animationend', () => {
   onLoadAni.style.display = 'none';
-  beforeOnLoadAni.removeEventListener('animationend', beforeUnloadEvent);
+  beforeUnLoadAni.removeEventListener('animationend', beforeUnloadEvent);
 });
 
 function beforeUnloadEvent() {
   window.innerWidth < 750 && hamburgerMenu.classList.toggle('change');
   window.innerWidth < 750 && nav.classList.toggle('visible');
+  console.log(path);
   FetchData(path).then(() => {
-    beforeOnLoadAni.style.display = 'none';
+    switchThemeColor(path);
+    switchInitScript(path);
+    beforeUnLoadAni.style.display = 'none';
     onLoadAni.style.display = 'inline';
   });
 }
 
 navList.forEach((li) => {
-  li.addEventListener('click', (event) => {
+  const link = li.firstChild;
+  link.addEventListener('click', (event) => {
     event.preventDefault();
     path = event.target.getAttribute('href');
-    beforeOnLoadAni.addEventListener('animationend', beforeUnloadEvent);
-    beforeOnLoadAni.style.display = 'inline';
+    beforeUnLoadAni.addEventListener('animationend', beforeUnloadEvent);
+    switchAccentColor(path);
+    beforeUnLoadAni.style.display = 'inline';
     history.pushState({ path }, null, path);
   });
 });
@@ -59,26 +97,59 @@ async function FetchData(path) {
     const url = routes[path];
     const res = await fetch(url);
     content.innerHTML = await res.text();
-
-    switch (path) {
-      case '/project':
-        initProject();
-        nav.style.backgroundColor = '#4b4b4b';
-        document.querySelectorAll('.navigation__lists li').forEach((li) => {
-          li.style.color = '#fff';
-        });
-        return;
-
-      default:
-        nav.style.backgroundColor = '#fff';
-        document.querySelectorAll('.navigation__lists li').forEach((li) => {
-          li.style.color = '#4b4b4b';
-        });
-        return;
-    }
   } catch (err) {
     console.log(err);
   }
+}
+
+function switchInitScript(path) {
+  switch (path) {
+    case '/project':
+      initProject();
+      return;
+    case '/about-me':
+      initAboutMe();
+      return;
+    default:
+      return;
+  }
+}
+
+function switchThemeColor(path) {
+  switch (path) {
+    case '/project':
+      changeThemeColor(darkgray, white);
+      return;
+    case '/about-me':
+      changeThemeColor(superLightGray, darkgray);
+      return;
+    default:
+      changeThemeColor(white, darkgray);
+      return;
+  }
+}
+
+function switchAccentColor(path) {
+  switch (path) {
+    case '/project':
+      changeAccentColor(blue);
+      return;
+    case '/about-me':
+      changeAccentColor(pink);
+      return;
+    default:
+      changeAccentColor(green);
+      return;
+  }
+}
+
+function changeThemeColor(background, text) {
+  document.documentElement.style.setProperty('--background-color', background);
+  document.documentElement.style.setProperty('--text-color', text);
+}
+
+function changeAccentColor(accent) {
+  document.documentElement.style.setProperty('--accent-color', accent);
 }
 
 function initProject() {
@@ -144,4 +215,28 @@ function addProjectSlide() {
       console.log();
     });
   });
+}
+
+const skills = document.querySelectorAll('.aboutMe__skill-box li');
+skills.forEach((li) => {
+  li.addEventListener('click', (event) => {
+    console.log(event.target.classList);
+  });
+});
+
+function initAboutMe() {
+  addArccodian();
+}
+
+function addArccodian() {
+  document
+    .querySelector('.aboutMe__sentence-show-btn')
+    .addEventListener('click', () => {
+      document
+        .querySelector('.aboutMe__sentence-detail')
+        .classList.toggle('open-detail');
+      document
+        .querySelector('.aboutMe__sentence-show-btn')
+        .classList.toggle('up-down-toggle');
+    });
 }
