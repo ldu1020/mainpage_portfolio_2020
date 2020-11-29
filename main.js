@@ -50,17 +50,21 @@ window.addEventListener('popstate', (event) => {
   fetchSet(_path);
 });
 
-function fetchSet(path) {
-  FetchData(path).then(() => {
-    switchInitScript(path);
-    switchThemeColor(path);
-    switchAccentColor(path);
-  });
-}
-
 hamburgerMenu.addEventListener('click', () => {
   hamburgerMenu.classList.toggle('change');
   nav.classList.toggle('visible');
+});
+
+navList.forEach((li) => {
+  const link = li.firstChild;
+  link.addEventListener('click', (event) => {
+    event.preventDefault();
+    path = event.target.getAttribute('href');
+    switchAccentColor(path);
+    beforeUnLoadAni.addEventListener('animationend', beforeUnloadEvent);
+    beforeUnLoadAni.style.display = 'inline';
+    history.pushState({ path }, null, path);
+  });
 });
 
 onLoadAni.addEventListener('animationend', () => {
@@ -71,7 +75,6 @@ onLoadAni.addEventListener('animationend', () => {
 function beforeUnloadEvent() {
   window.innerWidth < 750 && hamburgerMenu.classList.toggle('change');
   window.innerWidth < 750 && nav.classList.toggle('visible');
-  console.log(path);
   FetchData(path).then(() => {
     switchThemeColor(path);
     switchInitScript(path);
@@ -80,17 +83,13 @@ function beforeUnloadEvent() {
   });
 }
 
-navList.forEach((li) => {
-  const link = li.firstChild;
-  link.addEventListener('click', (event) => {
-    event.preventDefault();
-    path = event.target.getAttribute('href');
-    beforeUnLoadAni.addEventListener('animationend', beforeUnloadEvent);
+function fetchSet(path) {
+  FetchData(path).then(() => {
+    switchInitScript(path);
+    switchThemeColor(path);
     switchAccentColor(path);
-    beforeUnLoadAni.style.display = 'inline';
-    history.pushState({ path }, null, path);
   });
-});
+}
 
 async function FetchData(path) {
   try {
@@ -115,20 +114,6 @@ function switchInitScript(path) {
   }
 }
 
-function switchThemeColor(path) {
-  switch (path) {
-    case '/project':
-      changeThemeColor(darkgray, white);
-      return;
-    case '/about-me':
-      changeThemeColor(superLightGray, darkgray);
-      return;
-    default:
-      changeThemeColor(white, darkgray);
-      return;
-  }
-}
-
 function switchAccentColor(path) {
   switch (path) {
     case '/project':
@@ -143,13 +128,18 @@ function switchAccentColor(path) {
   }
 }
 
-function changeThemeColor(background, text) {
-  document.documentElement.style.setProperty('--background-color', background);
-  document.documentElement.style.setProperty('--text-color', text);
-}
-
-function changeAccentColor(accent) {
-  document.documentElement.style.setProperty('--accent-color', accent);
+function switchThemeColor(path) {
+  switch (path) {
+    case '/project':
+      changeThemeColor(darkgray, white);
+      return;
+    case '/about-me':
+      changeThemeColor(superLightGray, darkgray);
+      return;
+    default:
+      changeThemeColor(white, darkgray);
+      return;
+  }
 }
 
 function initProject() {
@@ -157,6 +147,10 @@ function initProject() {
     VanillaTilt.init(document.querySelectorAll('.project__card'));
   addProjectDetail();
   addProjectSlide();
+}
+
+function initAboutMe() {
+  addArccodian();
 }
 
 function addProjectDetail() {
@@ -185,7 +179,6 @@ function addProjectSlide() {
     const info = card.children[2];
     const controller = card.children[3];
 
-    // Slide
     const imgWrapperWidth = imgWrapper.getBoundingClientRect().width;
     const imgLists = imgWrapper.children[0];
     const imgListLength = imgLists.children.length;
@@ -212,20 +205,8 @@ function addProjectSlide() {
       }
       const move = (100 / imgListLength) * flag;
       imgLists.style.transform = `translate(${move}%)`;
-      console.log();
     });
   });
-}
-
-const skills = document.querySelectorAll('.aboutMe__skill-box li');
-skills.forEach((li) => {
-  li.addEventListener('click', (event) => {
-    console.log(event.target.classList);
-  });
-});
-
-function initAboutMe() {
-  addArccodian();
 }
 
 function addArccodian() {
@@ -239,4 +220,13 @@ function addArccodian() {
         .querySelector('.aboutMe__sentence-show-btn')
         .classList.toggle('up-down-toggle');
     });
+}
+
+function changeThemeColor(background, text) {
+  document.documentElement.style.setProperty('--background-color', background);
+  document.documentElement.style.setProperty('--text-color', text);
+}
+
+function changeAccentColor(accent) {
+  document.documentElement.style.setProperty('--accent-color', accent);
 }
