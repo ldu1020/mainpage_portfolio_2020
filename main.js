@@ -78,6 +78,7 @@ function beforeUnloadEvent() {
   FetchData(path).then(() => {
     switchThemeColor(path);
     switchInitScript(path);
+    document.querySelector('body').scrollIntoView();
     beforeUnLoadAni.style.display = 'none';
     onLoadAni.style.display = 'inline';
   });
